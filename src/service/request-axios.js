@@ -4,7 +4,9 @@ import envConfig from '@/env-config';
 import { makeSign } from './request-utils';
 import { trans } from '@/utils/public';
 import { getToken, removeToken } from '@/lib/cookie'
-import { removeFinishedRequest, addPendingRequest, removePendingRequest, clearAllRequest } from './request-filter';
+import { removeFinishedRequest, addPendingRequest, clearAllRequest } from './request-filter';
+import router from '@/router';
+
 export class HttpRequest {
   constructor() {
     this.instance = axios.create();
@@ -14,9 +16,9 @@ export class HttpRequest {
   interceptors() {
     this.instance.interceptors.request.use(
       (config) => {
-        // 添加请求拦截器
-        removePendingRequest(config) // 检查是否存在重复请求
-        addPendingRequest(config); // 添加请求到pendingRequests
+        // 注册请求到 pendingRequests
+        // addPendingRequest 内部自动处理重复：发现同 key 请求 → abort 旧的 → 注册新的（后浪拍死前浪）
+        addPendingRequest(config);
         let { method, params, data } = config;
         const token = getToken();
         let result = makeSign(params || data, method.toUpperCase())
@@ -39,42 +41,42 @@ export class HttpRequest {
       },
       (error) => {
         console.error('请求错误:', error);
-        return error;
+        return Promise.reject(error);
       }
     );
 
     this.instance.interceptors.response.use(
       (response) => {
-        // 响应拦截器
         const { config } = response;
-        console.log('请求成功:', response);
-        // 从pendingRequests中移除请求
-        removePendingRequest(config)
-        // 处理响应数据
+        // 带身份校验移除：config._currentController === Map 中存取的 controller 同一实例才删除
+        // 防止旧请求（被后续重复请求 abort 后）的响应回调误删新请求的记录
+        removeFinishedRequest(config)
         response.data = trans(response.data);
         return response;
       },
       (error) => {
-        // 错误处理
-        const { response } = error || {};
-        console.error('请求错误response:', response);
-        response.data = trans(response.data)
+        const { config, response } = error || {};
+        console.error('请求错误:', error);
+
+        // 同样带身份校验移除当前失败请求，避免误清替换后的新请求
+        if (config) {
+          removeFinishedRequest(config)
+        }
+
         if (response) {
-          removePendingRequest(response)
-          clearAllRequest()
-          console.error('请求错误response:', response)
-          if (response.status == 403) {
-            // Message.error('请重新登录');
-            removeToken();//清除token
-            closeAllModals();//清除后续所有请求
+          // 403：鉴权失效，清 token、清所有待处理请求、跳转登录
+          if (response.status === 403) {
+            removeToken();
+            clearAllRequest();
             router.replace({ name: 'login' })
           }
-          if (response.status == 410 && response.data?.errorinfo) {
-            // Message.error(response.data.errorinfo)
+
+          if (response.data) {
+            response.data = trans(response.data)
           }
         }
 
-        return error;
+        return Promise.reject(error);
       }
     );
   }

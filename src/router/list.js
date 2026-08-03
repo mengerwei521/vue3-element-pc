@@ -25,9 +25,8 @@ let routerList = [
         path: '/home',
         name: 'home',
         meta: {
-          icon: 'House',
+          // icon: 'House',
           title: 'route.home',
-          badge_num: 100
         },
         component: () => import('_v/home/home.vue'),
       },

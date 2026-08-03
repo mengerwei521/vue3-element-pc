@@ -1,7 +1,7 @@
 <template>
   <span class="title">
     {{ title }}
-    <el-badge v-if="badgeNum" :is-dot="isDot" :value="1" :max="99" />
+    <el-badge v-if="badgeNum" :is-dot="isDot" :value="badgeNum" :max="99" />
   </span>
 </template>
 
