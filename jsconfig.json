@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "_c/*": ["./src/components/*"],
+      "_v/*": ["./src/views/*"]
+    },
+    "moduleResolution": "bundler"
+  },
+  "exclude": ["node_modules", "dist"]
+}
