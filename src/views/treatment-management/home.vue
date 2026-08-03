@@ -1,5 +1,5 @@
 <template>
-  <div class="treatment-monitoring-home"></div>
+  <div class="treatment-monitoring-home">1</div>
 </template>
 
 <script setup>

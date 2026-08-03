@@ -52,29 +52,34 @@ export const getMenuByRouter = (list) => {
  * @returns {Array}
  */
 export const getBreadCrumbList = (route, defaultRoute) => {
-  let homeItem = { ...defaultRoute, icon: defaultRoute.meta ? defaultRoute.meta.icon : '', to: defaultRoute.path }
   let routeMetched = route.matched
-  if (routeMetched.some((item) => item.name === defaultRoute.name)) return [homeItem]
-  let res = routeMetched
+  // 如果当前页就是默认首页，只显示首页一项
+  if (routeMetched.length === 1 && routeMetched[0].name === defaultRoute.name) {
+    return [{
+      ...defaultRoute,
+      icon: (defaultRoute.meta && defaultRoute.meta.icon) || '',
+      to: defaultRoute.path,
+      meta: defaultRoute.meta || {},
+    }]
+  }
+  // 否则只展示 matched 链条，不额外追加首页
+  return routeMetched
     .filter((item) => {
       return item.meta === undefined || !item.meta.hideInBread
     })
     .map((item) => {
-      console.log(item, 'items')
       let meta = { ...item.meta }
       if (meta.title && typeof meta.title === 'function') {
         meta.__titleIsFunction__ = true
         meta.title = meta.title(route)
       }
-      let obj = {
+      return {
         icon: (item.meta && item.meta.icon) || '', //图标
         name: item.name, //路由名
-        to: '', //触发后跳转的页面路由
+        to: item.path,//触发后跳转的页面路由
         meta: meta,
       }
-      return obj
     })
-  return [homeItem, ...res]
 }
 /**
  * @desc 大写转为小写
