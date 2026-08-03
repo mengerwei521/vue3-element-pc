@@ -29,7 +29,7 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute()
-    const defaultActive = ref(route.name || envConfig.defaultRouteName)
+    const defaultActive = computed(() => route.name)
     const publicStore = usePublicStore()
     //侧边栏路由数据
     const menuList = computed(() => {
@@ -45,7 +45,6 @@ export default defineComponent({
     const router = useRouter()
     //路由跳转
     function onSelectRouter(value) {
-      defaultActive.value = value
       router.push({ name: value })
     }
     return { defaultActive, menuList, isCollapse, logoUrl, onSelectRouter }
