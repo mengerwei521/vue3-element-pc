@@ -3,6 +3,7 @@ import routerList from './list';
 import envConfig from '@/env-config'
 import { getToken } from '@/lib/cookie'
 import { useLoginStore } from '@/stores/modules/login';
+import { usePublicStore } from '@/stores/modules/public';
 console.log(routerList, 'routerList')
 const router = createRouter({
   history: createWebHistory(envConfig.base_url),
@@ -28,7 +29,8 @@ router.beforeEach(async (to, from, next) => {
     // 已登录
     let loginStore = useLoginStore();
     if (!loginStore?.user?.userid) {
-      await loginStore.getCurrentInfor()
+      // 不 await，避免 API 不可达时阻塞导航
+      loginStore.getCurrentInfor().catch(() => { })
     }
     if (token && to.name === LOGIN_PAGE_NAME) {
       // 已登录且要跳转的页面是登录页

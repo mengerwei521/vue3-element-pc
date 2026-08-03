@@ -18,19 +18,10 @@ import Layout from '@/Layout/index.vue';
 let routerList = [
   {
     path: '/',
-    redirect: '/home',
-    component: Layout,
-    children: [
-      {
-        path: '/home',
-        name: 'home',
-        meta: {
-          // icon: 'House',
-          title: 'route.home',
-        },
-        component: () => import('_v/home/home.vue'),
-      },
-    ],
+    redirect: '/treatment-management',
+    meta: {
+      hideInMenu: true
+    },
   },
   {
     path: '/login',
@@ -52,13 +43,10 @@ let routerList = [
     component: () => import('@/views/error-page/404.vue')
   }
 ];
-const modules = import.meta.glob('../views/**/*_router.js');//import.meta.glob vite的解决翻案
-const context = (await Promise.all(Object.keys(modules).map(async (key) => {
-  const module = await modules[key]();
-  console.log(module, 'key')
-  return module.default || module;
-})
-)).flat();
-console.log(context, modules, 'context')
-routerList = context.length > 0 ? routerList.concat(context) : routerList;
+// 自动发现 views/**/_router.js，eager:true 在构建时静态解析，避免动态 import + 顶层 await 死锁
+const modules = import.meta.glob('../views/**/*_router.js', { eager: true, import: 'default' })
+
+for (const path in modules) {
+  routerList = routerList.concat(modules[path])
+}
 export default routerList

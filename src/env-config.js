@@ -4,7 +4,7 @@ export default {
   //根路由
   base_url: 'tool',
   //默认打开的信息概览的路由name值
-  default_name: 'home',
+  default_name: 'treatment-monitoring-home',
   //cookie配置
   cookie: {
     expires: 7,//cookie保存的天数

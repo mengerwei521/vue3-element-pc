@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       }),
       Components({
         resolvers: [ElementPlusResolver()],
-        dts: false,
+        dts: 'types/components.d.ts',
       }),
       createSvgIconsPlugin({
         iconDirs: [path.resolve(process.cwd(), 'src/SvgIcon/svg')],

@@ -13,9 +13,9 @@ export default defineComponent({
   setup() {
     const publicStore = usePublicStore()
     const breadCrumbList = computed(() => {
+      console.log(publicStore.breadCrumbList, 'publicStore.breadCrumbList')
       return publicStore.breadCrumbList
     })
-    console.log(breadCrumbList, 'breadCrumbListbreadCrumbList')
     return { breadCrumbList }
   },
 })
