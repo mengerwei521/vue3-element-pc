@@ -42,8 +42,11 @@ router.beforeEach(async (to, from, next) => {
 });
 router.afterEach((to, from) => {
   const publicStore = usePublicStore();
+  // 先移除离开的页面缓存，再添加进入的页面缓存（防止同名冲突）
+  if (from.meta.cache && from.name) {
+    publicStore.removeKeepAlive(from.name);
+  }
   if (to.meta.cache) {
-    // 如果路由需要缓存
     if (to.name) {
       publicStore.addKeepAlive(to.name);
     } else {
